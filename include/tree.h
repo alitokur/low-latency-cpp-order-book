@@ -2,6 +2,7 @@
 #include "types.h"
 #include "DLL.h"
 #include <cstdint>
+#include <sys/_types/_id_t.h>
 #include <unordered_map>
 #include <iostream>
 
@@ -69,6 +70,29 @@ public:
         volume += order->shares;
         if(best != nullptr) last_best_price = best->key;
     };
+
+    void cancel_order(Order *order)
+    {
+        auto level = order->level;
+        if (order->prev == nullptr && order->next == nullptr)
+        {
+            //remove_from_bst();
+            /// TODO: update best
+            levels.erase(level->key);
+            delete level;
+        }
+        else
+        {
+            --level->count;
+            level->volume -= order->shares;
+            ///TODO: remove from dll
+        }
+
+        --count;
+        volume -= order->shares;
+
+        /// TODO: update last_best_price
+    }
 
     void display_tree(){
         in_order_traversal(reinterpret_cast<BSTNode<uint64_t> *>(root));

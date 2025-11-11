@@ -73,6 +73,20 @@ public:
         }
     }
 
+
+    inline void cancel_order(uint64_t order_id){
+        auto order = &orders.at(order_id);
+        switch(order->buy_or_sell){
+            case Side::Sell:{
+                asks.cancel_order(order);
+            }
+            case Side::Buy:{
+                bids.cancel_order(order);
+            }
+        }
+
+    }
+
     /// DEBUG
     inline void display_orders()
     {
