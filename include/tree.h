@@ -73,9 +73,9 @@ template<Side side> class PriceLevelTree
     Level *best = nullptr;
     uint64_t last_best_price = 0;
     uint32_t count = 0;
-    uint64_t volume = 0;
 
 public:
+    uint64_t volume = 0;
     void add_level(Order *order)
     {
         if (levels.count(order->limit) == 0)

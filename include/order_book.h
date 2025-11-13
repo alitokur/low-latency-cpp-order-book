@@ -86,7 +86,46 @@ public:
                 break;
             }
         }
+        orders.erase(order_id);
+    }
 
+    inline void execute_order(uint64_t order_id, uint32_t quantity)
+    {
+        auto order = &orders.at(order_id);
+        if (quantity > order->shares)
+        {
+            std::cout << "ERROR";
+            return;
+        }
+        order->shares -= quantity;
+        order->level->volume -= quantity;
+        switch (order->buy_or_sell)
+        {
+        case Side::Sell: {
+            asks.volume -= quantity;
+            break;
+        };
+        case Side::Buy: {
+            bids.volume -= quantity;
+            break;
+        }
+        }
+
+        if (order->shares == 0)
+        {
+            switch (order->buy_or_sell)
+            {
+            case Side::Sell: {
+                asks.cancel_order(order);
+                break;
+            }
+            case Side::Buy: {
+                bids.cancel_order(order);
+                break;
+            }
+            }
+            orders.erase(order_id);
+        }
     }
 
     /// DEBUG
@@ -115,8 +154,5 @@ public:
         bids.info_best();
  
     }
-
     /// DEBUG 
-
-
 };

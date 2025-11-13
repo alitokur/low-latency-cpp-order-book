@@ -38,6 +38,8 @@ int main (int argc, char *argv[]) {
     book.display_orders();
     book.cancel_order(15);
     book.display_orders();
+    book.execute_order(16, 5);
+    book.display_orders();
 
     return 0;
 }
