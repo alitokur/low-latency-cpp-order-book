@@ -2,32 +2,6 @@
 #include <unordered_map>
 #include <iostream>
 
-template<Side side> void set_best(Level **best, Level *level);
-
-template<> inline void set_best<Side::Buy>(Level **best_buy, Level *level)
-{
-    if (*best_buy == nullptr)
-    {
-        *best_buy = level;
-    }
-    else if (level->key > (*best_buy)->key)
-    {
-        *best_buy = level;
-    }
-}
-
-template<> inline void set_best<Side::Sell>(Level **best_sell, Level *level)
-{
-    if (*best_sell == nullptr)
-    {
-        *best_sell = level;
-    }
-    else if (level->key < (*best_sell)->key)
-    {
-        *best_sell = level;
-    }
-}
-
 inline Level* find_min_node(Level* root){
     while(root->left != nullptr){
         root = root->left;
@@ -41,17 +15,41 @@ inline Level* find_max_node(Level* root){
     }
     return root;
 }
-template<Side side> void find_best(Level **best);
 
+template<Side side> void set_best(Level **best, Level *level);
+template<> inline void set_best<Side::Buy>(Level **best_buy, Level *level)
+{
+    if (*best_buy == nullptr)
+    {
+        *best_buy = level;
+    }
+    else if (level->key > (*best_buy)->key)
+    {
+        *best_buy = level;
+    }
+}
+template<> inline void set_best<Side::Sell>(Level **best_sell, Level *level)
+{
+    if (*best_sell == nullptr)
+    {
+        *best_sell = level;
+    }
+    else if (level->key < (*best_sell)->key)
+    {
+        *best_sell = level;
+    }
+}
+
+template<Side side> void find_best(Level **best);
 template<> inline void find_best<Side::Buy>(Level **best_buy)
 {
     if ((*best_buy)->parent == nullptr)
     {
-        *best_buy = static_cast<Level *>((*best_buy)->left);
+        *best_buy = (*best_buy)->left;
     }
     else
     {
-        *best_buy = static_cast<Level *>((*best_buy)->parent);
+        *best_buy = (*best_buy)->parent;
     }
 
     if (*best_buy != nullptr)
@@ -59,16 +57,15 @@ template<> inline void find_best<Side::Buy>(Level **best_buy)
         *best_buy = find_max_node(*best_buy);
     }
 }
-
 template<> inline void find_best<Side::Sell>(Level **best_sell)
 {
     if ((*best_sell)->parent == nullptr)
     {
-        *best_sell = static_cast<Level *>((*best_sell)->right);
+        *best_sell = (*best_sell)->right;
     }
     else
     {
-        *best_sell = static_cast<Level *>((*best_sell)->parent);
+        *best_sell = (*best_sell)->parent;
     }
 
     if (*best_sell != nullptr)
@@ -76,8 +73,6 @@ template<> inline void find_best<Side::Sell>(Level **best_sell)
         *best_sell = find_min_node(*best_sell);
     }
 }
-
-
 
 template<Side side> bool can_match(uint64_t limit, uint64_t market);
 
@@ -199,7 +194,7 @@ public:
             last_best_price = best->key;
         }
     }
-    
+
     inline void remove_from_dll(Order **head, Order **tail, Order *node)
     {
         if (node->prev != nullptr)
@@ -216,7 +211,7 @@ public:
         }
         if (*tail == node)
         {
-            *head = node->prev;
+            *tail = node->prev;
         }
         node->next = nullptr;
         node->prev = nullptr;
@@ -318,7 +313,6 @@ public:
             }
             else
             {
-                /// TODO: find the mind node
                 auto min_node = find_min_node(node->right);
                 if (min_node->right != nullptr)
                 {
@@ -348,24 +342,6 @@ public:
                 }
             }
         }
-    }
-
-    inline Level *find_min_node(Level* root)
-    {
-        while (root->left != nullptr)
-        {
-            root = root->left;
-        }
-        return root;
-    }
-
-    inline Level *find_max_node(Level *root)
-    {
-        while (root->right != nullptr)
-        {
-            root = root->right;
-        }
-        return root;
     }
 
     void in_order_traversal(Level *node)
